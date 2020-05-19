@@ -12,12 +12,21 @@ if [[ -z "${LDK_QNX_INSTALL_FOLDER}" ]]; then
     exit 1
 fi
 
+if [[ $# -eq 3 ]]; then
+    echo "You must specify a build type (Release, Debug) and a toolchain file!"
+    exit 1
+fi
+
 . "${QNX_SOURCE_SCRIPT}"
 
 rm -rf build
 mkdir build
 cd build
 
-cmake -G "Unix Makefiles" .. -DCMAKE_PREFIX_PATH:PATH=${LDK_QNX_INSTALL_FOLDER} -DCMAKE_INSTALL_PREFIX:PATH=${LDK_QNX_INSTALL_FOLDER} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/aarch64/qnx/gcc/toolchain_aarch64_qnx_gcc.cmake
+cmake -G "Unix Makefiles" ..                            \
+  -DCMAKE_PREFIX_PATH:PATH=${LDK_QNX_INSTALL_FOLDER}    \
+  -DCMAKE_INSTALL_PREFIX:PATH=${LDK_QNX_INSTALL_FOLDER} \
+  -DCMAKE_BUILD_TYPE="$1"                               \
+  -DCMAKE_TOOLCHAIN_FILE="$2"
 
 cmake --build . --target install -- -j "${LUMPDK_NPROC:-$(($(nproc) + 2))}"
